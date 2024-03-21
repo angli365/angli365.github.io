@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Understanding Round and Saturation in Hardward Design
-date: 2024-03-13 19:52 +0100
+date: 2024-03-21 7:52 +0100
 author: me
 categories: [hw, verilog]
 tags: [verilog, fixed-point, rounding, saturation]
@@ -31,9 +31,9 @@ localparam DOUT_WIDTH = DIN_WIDTH;
 localparam TRUNCATE_FRAC_WIDTH = DIN_FRAC_WIDTH - DOUT_FRAC_WIDTH;
 
 // Rounding
-assign dout = (din + { {(DOUT_WIDTH-TRUNCATE_FRAC_WIDTH){1'b0} }, 
-               {din[TRUNCATE_FRAC_WIDTH], {(TRUNCATE_FRAC_WIDTH-1){!din[TRUNCATE_FRAC_WIDTH]}}}})
-               >> TRUNCATE_FRAC_WIDTH;
+assign dout = $signed((din + { {(DOUT_WIDTH-TRUNCATE_FRAC_WIDTH){1'b0} }, 
+               {din[TRUNCATE_FRAC_WIDTH], {(TRUNCATE_FRAC_WIDTH-1){!din[TRUNCATE_FRAC_WIDTH]}}}}))
+               >>> TRUNCATE_FRAC_WIDTH;
 
 endmodule
 ```
@@ -52,23 +52,29 @@ The Verilog code for a saturation unit is as follows:
 ```verilog
 
 module saturate #(
-    parameter DIN_WIDTH  = 16,
-    parameter DOUT_WIDTH = 12
+    parameter DIN_WIDTH             = 16,
+    parameter DOUT_WIDTH            = 12
 )(
-    input  signed [DIN_WIDTH-1:0] din,
-    output signed [DOUT_WIDTH-1:0] dout
+    input  signed       [DIN_WIDTH-1:0]            din,
+    output signed       [DOUT_WIDTH-1:0]           dout
 );
 
-wire overflow;
-assign overflow = din[DIN_WIDTH-1] ^ din[DIN_WIDTH-2];
+localparam TRUNCATE_MSB = DIN_WIDTH - 1;
+localparam TRUNCATE_LSB = DOUT_WIDTH -1;
 
-/* if overflow, saturate din to MAX or MIN per DOUT_WIDTH */
-assign dout = overflow ? {din[DIN_WIDTH-1], {(DOUT_WIDTH-1){!din[DIN_WIDTH-1]}}} :
-    din[DOUT_WIDTH-1:0];
+wire not_overflow;
+
+assign not_overflow = (&din[TRUNCATE_MSB:TRUNCATE_LSB]) | !(|din[TRUNCATE_MSB:TRUNCATE_LSB]);
+
+/* if overflow, saturate din to MAX or MIN per DOUT_WIDTH
+*/
+assign dout = not_overflow ? din[DOUT_WIDTH-1:0]:
+                            {din[DIN_WIDTH-1], {(DOUT_WIDTH-1){!din[DIN_WIDTH-1]}}};
 
 endmodule
+
 ```
-In this code, we first determine if an overflow has occurred after truncating DIN_WIDTH to DOUT_WIDTH by checking the two most significant bits of the input din. If they differ, it means an overflow has happened, and we need to saturate the output.
+In this code, we first determine if an overflow has occurred after truncating DIN_WIDTH to DOUT_WIDTH by checking if any of the bits in the truncated range are different from the sign bit. If all the bits are the same as the sign bit, then no overflow has occurred. If any of the bits are different, then an overflow has occurred, and we need to saturate the output.
 
 If an overflow is detected, we assign the output dout to the maximum or minimum value representable in the output format, based on the sign bit of the input din. If no overflow occurs, we simply truncate the input to the desired output width.
 

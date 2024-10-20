@@ -4,6 +4,7 @@ title: DATA Quantization
 date: 2024-10-20 19:40 +0200
 categories: [INTRO, AI, SW-HW]
 tags: [quantization]
+math: true
 ---
 
 Data quantization is a crucial technique in the field of neural networks, particularly when it comes to deploying models on hardware with limited computational resources. In this blog post, we'll explore what data quantization is, why it's important, and how it's implemented in neural networks.
@@ -19,7 +20,7 @@ For example, we might convert 32-bit floating-point numbers to 8-bit integers. T
 Quantization can be described as an affine mapping from a continuous range $f \in [f_{min}, f_{max}]$ to a discrete set of values $q \in [q_{min}, q_{max}]$ using a scale factor $s$ and a zero-point $z$. The basic equation for this mapping is:
 
 $$
-q = round(\frac{f}{s} + z)
+q = \text{round}(\frac{f}{s} + z)
 $$
 
 The scale factor $s$ and zero-point $z$ are calculated as follows:
@@ -29,7 +30,7 @@ s = \frac{f_{max} - f_{min}}{q_{max} - q_{min}}
 $$
 
 $$
-z = round(q_{max} - \frac{f_{max}}{s})
+z = \text{round}(q_{max} - \frac{f_{max}}{s})
 $$
 
 ## Range Clipping in Quantization
@@ -37,7 +38,7 @@ $$
 To improve quantization efficiency, we often clip the input values to a defined range $[f_{min}, f_{max}]$. This is equivalent to clipping the quantized values to $[q_{min}, q_{max}]$. The quantization equation with clipping becomes:
 
 $$
-q = clip(round(\frac{f}{s} + z), q_{min}, q_{max})
+q = \text{clip}(\text{round}(\frac{f}{s} + z), q_{min}, q_{max})
 $$
 
 This approach focuses the available bits on common values rather than rare outliers, which can improve overall accuracy.
@@ -47,7 +48,7 @@ This approach focuses the available bits on common values rather than rare outli
 For efficient hardware implementation, fixed-point representation is often preferred. By defining the scale factor $s$ as a power-of-2 value ($2^{-frac\_bw}$) and the zero-point $z$ as 0, we can obtain a fixed-point value $fxq$:
 
 $$
-fxq = s * clip(round(\frac{f}{s}), q_{min}, q_{max})
+fxq = s * \text{clip}(\text{round}(\frac{f}{s}), q_{min}, q_{max})
 $$
 
 ## Quantization Schemes
@@ -95,14 +96,23 @@ A neural network has weights with value range $(-2, 2)$. To run it on a hardware
 2. Use the scale factor to quantize the floating point number $f$ = 0.101 to a fixed-point number.
 
 <details>
-<summary>Click to show answer</summary>
+<summary>Click to show answer 1</summary>
 
-## Answer
-1. To cover the range of $(-2, 2)$, there are 2 bits needed for the integer part (including 1 sign bit). So 6 bits can be used for the fractional part. Therefore, the scale factor $s$ is $2^{-6} = 1/64$.
-2. $fxq = 1/64 * clip(round(0.101 * 64), -2^{7}, 2^{7}-1)$
-   $= 1/64 * clip(round(6.464), -128, 127)$
-   $= 1/64 * 6$
-   $= 0.09375$
-
-**[FP to FXP Converter](https://venerable-biscuit-cefbbb.netlify.app/)**
+1. To cover the range of $(-2, 2)$, we need 2 bits for the integer part (including 1 sign bit), leaving 6 bits for the fractional part. Thus, the scale factor $s$ is $2^{-6} = 1/64$. 
 </details>
+
+<details>
+<summary>Click to show answer 2</summary>
+
+2. Quantizing $f = 0.101$: 
+$$
+\begin{align*}
+fxq &= 1/64 * clip(round(0.101 * 64), -2^{7}, 2^{7}-1) \\
+&= 1/64 * clip(round(6.464), -128, 127) \\
+&= 1/64 * 6 \\
+&= 0.09375
+\end{align*}
+$$
+</details>
+
+[FP to FXP Converter](https://venerable-biscuit-cefbbb.netlify.app/).

@@ -11,6 +11,9 @@ AMIQ's Design and Verification Tools (DVT) IDE is a powerful development environ
 
 DVT IDE is a specialized development environment that boosts productivity for hardware design and verification. It provides intelligent features that go far beyond a basic text editor, helping engineers write better code faster and navigate complex hardware projects with ease.
 
+Here's a demonstration of DVT IDE's seamless workflow when working with SystemVerilog/Verilog code. Notice the intelligent code navigation, real-time error detection, and more in action:
+
+![DVT IDE](/assets/vids/dvt_vscode_exp.gif)
 
 ## Key Features
 

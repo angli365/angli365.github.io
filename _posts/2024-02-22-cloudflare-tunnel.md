@@ -7,6 +7,8 @@ author: me
 categories: [cloudflare, tunnel]
 tags: [cf]
 ---
+[![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=Cloudflare&logoColor=white)](https://www.cloudflare.com/)
+
 # Guide to Setting Up Cloudflare Tunnel
 
 Cloudflare Tunnel offers a secure and efficient method to expose services running on a local network to the internet. This feature is a game-changer for developers and IT professionals looking to make their services accessible globally without compromising on security. Let's dive into how you can leverage Cloudflare Tunnel for your needs.
@@ -30,6 +32,10 @@ Before you embark on using Cloudflare Tunnel, there are a few requirements you s
 ![Cloudflare Tunnel Configuration](https://cfzero-telegraph.pages.dev/file/42055fc8f9cd870e93b40.png)
 
 ### Connecting to the Service on the Client Side
+
+Make sure you have the `cloudflared` application installed on the client machine. If not, please refer to the [Cloudflare Tunnel documentation](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads) for installation instructions. 
+
+For different types of services, the steps are different, for example:
 
 - **HTTP/HTTPS Services**: Simply copy the domain you specified earlier into your browser to access the service.
 - **TCP Services**: If you're exposing a service like VNC, follow these steps to connect to it from your client machine:

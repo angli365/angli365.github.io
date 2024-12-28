@@ -4,7 +4,7 @@ title: Server Setup - Install Docker on Ubuntu
 date: 2024-12-26 17:09 +0100
 author: me
 categories: [server, ubuntu, docker]
-tags: [docker]
+tags: [Docker]
 ---
 
 [![Docker](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)

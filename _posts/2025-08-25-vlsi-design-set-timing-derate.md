@@ -89,6 +89,7 @@ set_clock_uncertainty 1 -hold  [get_clocks CLK]
 ### Without derates
 
 The setup slack is calculated as follows:
+
 $$
 \begin{align}
 T_{setup\_slack} &= T_{clk} + T_{clk\_capture} - T_{clk\_launch} - T_{comb\_path(max)} - T_{c2q} - T_{setup\_uncertainity} - T_{setup\_chk} \\
@@ -98,6 +99,7 @@ T_{setup\_slack} &= T_{clk} + T_{clk\_capture} - T_{clk\_launch} - T_{comb\_path
 $$
 
 The hold slack is calculated as follows:
+
 $$
 \begin{align}
 T_{hold\_slack} &= T_{clk\_launch} + T_{comb\_path(min)} + T_{c2q} - T_{clk\_capture} - T_{hold\_uncertainity} - T_{hold\_chk} \\
@@ -116,6 +118,7 @@ set_timing_derate 0.8 -early -data
 ```
 
 The setup slack will be:
+
 $$
 \begin{align}
 T_{setup\_slack} &= T_{clk} + Td_{clk\_capture} - Td_{clk\_launch} - Td_{comb\_path(max)} - Td_{c2q} - T_{setup\_uncertainity} - T_{setup\_chk} \\
@@ -125,6 +128,7 @@ T_{setup\_slack} &= T_{clk} + Td_{clk\_capture} - Td_{clk\_launch} - Td_{comb\_p
 $$
 
 The hold slack will be:
+
 $$
 \begin{align}
 T_{hold\_slack} &= Td_{clk\_launch} + Td_{comb\_path(min)} + Td_{c2q} - Td_{clk\_capture} - T_{hold\_uncertainity} - T_{hold\_chk} \\
@@ -140,15 +144,17 @@ Now, let's consider applying the same derates to a modified circuit where the bu
 
 
 Since now the capture clock is 8ns in advance, the setup slack will be:
+
 $$
 \begin{align}
-T_{setup\_slack} &= T_{cap_shift} + Td_{clk\_capture} - Td_{clk\_launch} - Td_{comb\_path(max)} - Td_{c2q} - T_{setup\_uncertainity} - T_{setup\_chk} \\
+T_{setup\_slack} &= T_{cap\_shift} + Td_{clk\_capture} - Td_{clk\_launch} - Td_{comb\_path(max)} - Td_{c2q} - T_{setup\_uncertainity} - T_{setup\_chk} \\
 &= 12 + 2 * 0.9 - 2 * 1.2 - 4 * 1.1- 2 * 1.1 - 2 - 2 \\
 &= 0.8ns
 \end{align}
 $$
 
 The hold check will not be performed at the same clock edge, so the hold slack will be:
+
 $$
 \begin{align}
 T_{hold\_slack} &= (Td_{clk\_launch} + T_{lc\_shift}) + Td_{comb\_path(min)} + Td_{c2q} - (Td_{clk\_capture} + T_{cap\_shift}) - T_{hold\_uncertainity} - T_{hold\_chk} \\

@@ -24,3 +24,9 @@ gem "http_parser.rb", "~> 0.6.0", :platforms => [:jruby]
 
 
 gem 'jekyll-compose', group: [:jekyll_plugins]
+
+# Required for Ruby 3.4+ (no longer default gems)
+gem "csv"
+gem "logger"
+gem "base64"
+gem "bigdecimal"

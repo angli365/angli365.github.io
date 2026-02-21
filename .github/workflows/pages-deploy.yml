@@ -45,10 +45,51 @@ jobs:
           ruby-version: 3.2
           bundler-cache: true
 
+      - name: Resolve GA4 measurement ID
+        run: |
+          ID="${GA4_MEASUREMENT_ID_SECRET:-}"
+          if [ -z "${ID}" ]; then
+            echo "ERROR: GA4_MEASUREMENT_ID is not set. Configure repository Secret named GA4_MEASUREMENT_ID." >&2
+            exit 1
+          fi
+
+          echo "GA4_MEASUREMENT_ID=${ID}" >> "${GITHUB_ENV}"
+        env:
+          GA4_MEASUREMENT_ID_SECRET: ${{ secrets.GA4_MEASUREMENT_ID }}
+
+      - name: Validate GA4 measurement ID format
+        run: |
+          if [ -z "${GA4_MEASUREMENT_ID:-}" ]; then
+            echo "ERROR: GA4_MEASUREMENT_ID is empty after resolution." >&2
+            exit 1
+          fi
+
+          if [[ ! "${GA4_MEASUREMENT_ID}" =~ ^G-[A-Z0-9]+$ ]]; then
+            echo "ERROR: GA4_MEASUREMENT_ID format is invalid. Expected GA4 format like G-XXXXXXXXXX." >&2
+            exit 1
+          fi
+
+      - name: Generate analytics override config
+        run: |
+          cat > _config.analytics.yml <<EOF
+          google_analytics:
+            id: "${GA4_MEASUREMENT_ID}"
+          EOF
+
       - name: Build site
-        run: bundle exec jekyll b -d "_site${{ steps.pages.outputs.base_path }}"
+        run: bundle exec jekyll b --config "_config.yml,_config.analytics.yml" -d "_site${{ steps.pages.outputs.base_path }}"
         env:
           JEKYLL_ENV: "production"
+
+      - name: Verify GA script is present in built site
+        run: |
+          JS_COUNT="$(grep -Rho 'googletagmanager.com/gtag/js?id=G-[A-Z0-9]\+' _site | wc -l | tr -d ' ')"
+          CFG_COUNT="$(grep -Rho \"gtag('config', 'G-[A-Z0-9]\\+'\" _site | wc -l | tr -d ' ')"
+
+          if [ "${JS_COUNT}" = "0" ] || [ "${CFG_COUNT}" = "0" ]; then
+            echo "ERROR: GA tag not found in built site output. Check GA4_MEASUREMENT_ID and Jekyll production build config." >&2
+            exit 1
+          fi
 
       - name: Test site
         run: |

@@ -50,9 +50,12 @@ google_site_verification: # fill in to your verification string
 # The end of `jekyll-seo-tag` settings
 
 google_analytics:
-  id: # fill in your Google Analytics ID
+  # Set via CI overlay config generated in GitHub Actions.
+  # Local fallback: put your GA4 Measurement ID here, e.g. G-XXXXXXXXXX
+  id:
 
 goatcounter:
+  # Keep empty when using GA4 to avoid duplicate pageview counting.
   id: # fill in your Goatcounter ID
 
 # Prefer color scheme setting.

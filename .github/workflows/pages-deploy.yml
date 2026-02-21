@@ -83,8 +83,9 @@ jobs:
 
       - name: Verify GA script is present in built site
         run: |
+          set -euo pipefail
           JS_COUNT="$(grep -Rho 'googletagmanager.com/gtag/js?id=G-[A-Z0-9]\+' _site | wc -l | tr -d ' ')"
-          CFG_COUNT="$(grep -Rho \"gtag('config', 'G-[A-Z0-9]\\+'\" _site | wc -l | tr -d ' ')"
+          CFG_COUNT="$(grep -Rho "gtag('config', 'G-[A-Z0-9]\+'" _site | wc -l | tr -d ' ')"
 
           if [ "${JS_COUNT}" = "0" ] || [ "${CFG_COUNT}" = "0" ]; then
             echo "ERROR: GA tag not found in built site output. Check GA4_MEASUREMENT_ID and Jekyll production build config." >&2
